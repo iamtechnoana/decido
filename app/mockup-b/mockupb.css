@@ -1,0 +1,198 @@
+/* DECIDO mockup — Yön B: "editoryal verdict / karar gazetesi". İzole. */
+
+[data-theme='dark'] {
+  --bg: #100f0d;
+  --paper: #17150f;
+  --ink: #f3ede0;
+  --muted: #a39b88;
+  --faint: #6f685a;
+  --rule: #2a261d;
+  --accent: #5b7bff;
+  --accent-ink: #0b0c10;
+  --good: #5cc98a;
+  --bad: #f0786f;
+  --stamp-bg: #5b7bff;
+}
+[data-theme='light'] {
+  --bg: #efe9da;          /* gazete kâğıdı */
+  --paper: #f7f2e6;
+  --ink: #161310;
+  --muted: #5d564a;
+  --faint: #958d79;
+  --rule: #ddd3bd;
+  --accent: #1b3df5;
+  --accent-ink: #ffffff;
+  --good: #1a8a52;
+  --bad: #c23b30;
+  --stamp-bg: #1b3df5;
+}
+
+.mb-root {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-serif), Georgia, serif;
+  transition: background 0.4s ease, color 0.4s ease;
+  padding-bottom: 96px;
+}
+.mb-shell { max-width: 430px; margin: 0 auto; padding: 0 20px; }
+
+/* ── masthead ── */
+.mb-mast {
+  display: flex; align-items: flex-end; gap: 10px;
+  padding: 24px 0 12px;
+  border-bottom: 2px solid var(--ink);
+}
+.mb-logo {
+  font-family: var(--font-grotesk), sans-serif;
+  font-weight: 800; font-size: 30px; letter-spacing: -1px; line-height: 0.9;
+}
+.mb-tagline {
+  font-family: var(--font-grotesk), sans-serif;
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 3px; flex: 1;
+}
+.mb-toggle {
+  font-family: var(--font-grotesk), sans-serif;
+  border: 1px solid var(--rule); background: var(--paper); color: var(--muted);
+  padding: 6px 11px; border-radius: 2px; font-size: 12px; cursor: pointer;
+  margin-bottom: 2px;
+}
+.mb-toggle:hover { color: var(--ink); border-color: var(--ink); }
+
+.mb-kicker {
+  font-family: var(--font-grotesk), sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--accent);
+  margin: 26px 0 4px;
+  display: flex; align-items: center; gap: 10px;
+}
+.mb-kicker::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+
+/* ── triaj: çizgili magazin satırları ── */
+.mb-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--rule);
+  animation: fade 0.5s ease backwards;
+}
+.mb-thumb {
+  flex: 0 0 52px; height: 52px; border-radius: 3px;
+  display: grid; place-items: center;
+  font-family: var(--font-grotesk), sans-serif; font-weight: 800; font-size: 22px; color: #fff;
+}
+.mb-rowBody { flex: 1; min-width: 0; }
+.mb-rowName {
+  font-family: var(--font-grotesk), sans-serif;
+  font-weight: 700; font-size: 15px; letter-spacing: -0.2px; line-height: 1.15;
+}
+.mb-rowMeta { font-size: 13px; color: var(--muted); margin-top: 3px; font-style: italic; }
+.mb-rowMeta .lo { color: var(--good); font-style: normal; font-weight: 500; }
+.mb-rowActs {
+  font-family: var(--font-grotesk), sans-serif;
+  margin-top: 7px; display: flex; gap: 14px; font-size: 12px; font-weight: 600;
+}
+.mb-rowActs a { color: var(--accent); cursor: pointer; text-decoration: none; }
+.mb-rowActs a.mut { color: var(--faint); }
+.mb-rowScore {
+  font-family: var(--font-grotesk), sans-serif;
+  font-weight: 800; font-size: 26px; letter-spacing: -1px;
+  color: var(--ink); min-width: 34px; text-align: right;
+}
+
+/* ── verdict (karar) ── */
+.mb-verdict { margin-top: 10px; }
+.mb-vKicker {
+  font-family: var(--font-grotesk), sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 2px;
+}
+.mb-vKicker b { color: var(--ink); }
+.mb-lede { font-size: 15px; line-height: 1.5; color: var(--ink); margin: 8px 0 18px; }
+
+.mb-best {
+  border-top: 3px solid var(--ink);
+  padding-top: 16px;
+}
+.mb-bestStamp {
+  font-family: var(--font-grotesk), sans-serif;
+  display: inline-block;
+  font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--accent-ink); background: var(--accent);
+  padding: 4px 9px; border-radius: 2px; margin-bottom: 12px;
+}
+.mb-bestMain { display: flex; align-items: flex-start; gap: 14px; }
+.mb-bestName {
+  font-family: var(--font-grotesk), sans-serif;
+  font-weight: 800; font-size: 30px; line-height: 0.98; letter-spacing: -1.2px;
+  flex: 1;
+}
+.mb-stamp {
+  flex: 0 0 auto;
+  width: 62px; height: 62px; border-radius: 50%;
+  background: var(--stamp-bg); color: var(--accent-ink);
+  display: grid; place-items: center;
+  box-shadow: 0 6px 18px -6px var(--accent);
+}
+.mb-stamp .n { font-family: var(--font-grotesk), sans-serif; font-weight: 800; font-size: 26px; line-height: 1; }
+.mb-bestPrice {
+  font-family: var(--font-grotesk), sans-serif;
+  font-weight: 700; font-size: 18px; margin: 10px 0 12px;
+}
+.mb-quote {
+  border-left: 3px solid var(--accent);
+  padding-left: 14px; margin: 0 0 8px;
+  font-size: 16px; line-height: 1.5; font-style: italic; color: var(--ink);
+}
+.mb-con { font-size: 13.5px; color: var(--muted); font-style: italic; margin-bottom: 16px; }
+.mb-pick {
+  font-family: var(--font-grotesk), sans-serif;
+  width: 100%; padding: 14px; border: none; border-radius: 3px;
+  background: var(--ink); color: var(--bg);
+  font-size: 15px; font-weight: 700; letter-spacing: 0.3px; cursor: pointer;
+}
+.mb-pick:hover { background: var(--accent); color: var(--accent-ink); }
+
+.mb-also {
+  font-family: var(--font-grotesk), sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--faint); margin: 22px 0 4px;
+}
+.mb-rank {
+  display: flex; align-items: baseline; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid var(--rule);
+}
+.mb-rankNo {
+  font-family: var(--font-grotesk), sans-serif;
+  font-weight: 800; font-size: 15px; color: var(--accent); width: 24px;
+}
+.mb-rankName { flex: 1; font-family: var(--font-grotesk), sans-serif; font-weight: 600; font-size: 14px; }
+.mb-rankPrice { font-size: 13px; color: var(--muted); font-style: italic; }
+.mb-rankScore { font-family: var(--font-grotesk), sans-serif; font-weight: 800; font-size: 18px; width: 32px; text-align: right; }
+
+/* ── alt nav ── */
+.mb-nav { position: fixed; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; }
+.mb-navInner {
+  position: relative; width: 100%; max-width: 430px; margin: 0 20px 16px;
+  display: flex; justify-content: space-around; align-items: center;
+  padding: 11px 14px;
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 4px;
+  box-shadow: 0 12px 30px -14px rgba(0,0,0,0.5);
+}
+.mb-navItem {
+  font-family: var(--font-grotesk), sans-serif;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.5px; color: var(--muted); flex: 1;
+}
+.mb-navItem.active { color: var(--accent); }
+.mb-navItem .ic { font-size: 16px; }
+.mb-fab {
+  position: absolute; top: -24px; left: 50%; transform: translateX(-50%);
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--accent); color: var(--accent-ink);
+  display: grid; place-items: center; font-size: 26px; font-weight: 300;
+  border: 4px solid var(--bg); cursor: pointer;
+  box-shadow: 0 8px 20px -6px var(--accent);
+}
+
+@keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }

@@ -1,0 +1,264 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────
+   DECIDO tasarım sistemi — "Karar Gazetesi" (editoryal verdict)
+   Token isimleri korunur; değerler açık/koyu temaya göre değişir.
+   Fontlar: --font-grotesk (Bricolage Grotesque), --font-serif (Newsreader)
+   layout.tsx tarafından <html>'e bağlanır.
+   ───────────────────────────────────────────────────────────── */
+
+:root, [data-theme="dark"] {
+  --color-bg:        #100f0d;
+  --color-paper:     #17150f;
+  --color-surface:   #17150f;
+  --color-surface-2: #1d1a12;
+  --color-line:      #2a261d;   /* eski --color-line */
+  --color-rule:      #2a261d;
+  --color-ink:       #f3ede0;
+  --color-muted:     #a39b88;
+  --color-faint:     #6f685a;
+  --color-signal:    #5b7bff;
+  --color-signal-lt: rgba(91,123,255,0.16);
+  --color-accent-ink:#0b0c10;
+  --color-good:      #5cc98a;
+  --color-warn:      #e6b24d;
+  --color-bad:       #f0786f;
+  --shadow:          0 14px 34px -16px rgba(0,0,0,0.6);
+}
+
+[data-theme="light"] {
+  --color-bg:        #efe9da;   /* gazete kâğıdı */
+  --color-paper:     #f7f2e6;
+  --color-surface:   #f7f2e6;
+  --color-surface-2: #fffdf7;
+  --color-line:      #ddd3bd;
+  --color-rule:      #ddd3bd;
+  --color-ink:       #161310;
+  --color-muted:     #5d564a;
+  --color-faint:     #958d79;
+  --color-signal:    #1b3df5;
+  --color-signal-lt: rgba(27,61,245,0.10);
+  --color-accent-ink:#ffffff;
+  --color-good:      #1a8a52;
+  --color-warn:      #b07818;
+  --color-bad:       #c23b30;
+  --shadow:          0 14px 34px -16px rgba(60,50,30,0.30);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-serif), Georgia, "Times New Roman", serif;
+  color: var(--color-ink);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.35s ease, color 0.35s ease;
+}
+
+/* ── tipografi yardımcıları ── */
+.grotesk { font-family: var(--font-grotesk), ui-sans-serif, system-ui, sans-serif; }
+.kicker {
+  font-family: var(--font-grotesk), sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--color-signal);
+  display: flex; align-items: center; gap: 10px;
+}
+.kicker::after { content: ""; flex: 1; height: 1px; background: var(--color-rule); }
+.kicker.muted { color: var(--color-faint); }
+
+/* ── kart / yüzey ── */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 5px;
+}
+
+/* ── butonlar (grotesk, köşeli) ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-grotesk), sans-serif;
+  padding: 8px 13px; border-radius: 3px;
+  border: 1px solid var(--color-line);
+  background: var(--color-surface-2); color: var(--color-ink);
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.btn:hover { border-color: var(--color-ink); }
+.btn-primary {
+  background: var(--color-ink); border-color: var(--color-ink); color: var(--color-bg);
+}
+.btn-primary:hover { background: var(--color-signal); border-color: var(--color-signal); color: var(--color-accent-ink); }
+.btn-accent {
+  background: var(--color-signal); border-color: var(--color-signal); color: var(--color-accent-ink);
+}
+
+/* ── input ── */
+.input {
+  width: 100%;
+  font-family: var(--font-serif), serif;
+  padding: 10px 13px; border-radius: 3px;
+  border: 1px solid var(--color-line);
+  background: var(--color-surface-2); color: var(--color-ink);
+  font-size: 15px;
+}
+.input::placeholder { color: var(--color-faint); font-style: italic; }
+.input:focus { outline: none; border-color: var(--color-signal); }
+
+/* ── badge (grotesk caps) ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--font-grotesk), sans-serif;
+  padding: 2px 8px; border-radius: 2px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+  background: var(--color-surface-2); border: 1px solid var(--color-line);
+  color: var(--color-muted);
+}
+
+/* ── skor: kalın grotesk rakam (imza) ── */
+.score {
+  font-family: var(--font-grotesk), sans-serif;
+  font-weight: 800; letter-spacing: -1px; color: var(--color-ink);
+  line-height: 1;
+}
+
+/* ── verdict damgası / mührü ── */
+.stamp {
+  display: inline-block;
+  font-family: var(--font-grotesk), sans-serif;
+  font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--color-accent-ink); background: var(--color-signal);
+  padding: 4px 9px; border-radius: 2px;
+}
+.seal {
+  display: grid; place-items: center; border-radius: 50%;
+  background: var(--color-signal); color: var(--color-accent-ink);
+  box-shadow: 0 6px 18px -6px var(--color-signal);
+}
+.seal .n { font-family: var(--font-grotesk), sans-serif; font-weight: 800; line-height: 1; }
+
+.pull-quote {
+  border-left: 3px solid var(--color-signal);
+  padding-left: 14px;
+  font-style: italic; line-height: 1.5; color: var(--color-ink);
+}
+
+/* ── yatay kural ── */
+.rule { height: 1px; background: var(--color-rule); border: none; }
+.rule-strong { height: 2px; background: var(--color-ink); border: none; }
+
+/* ═══ Board düzeni (editoryal, mobil-önce) ═══ */
+.board { max-width: 560px; margin: 0 auto; padding: 22px 20px 64px; }
+
+.masthead {
+  display: flex; align-items: flex-end; gap: 10px;
+  padding-bottom: 12px; margin-bottom: 14px;
+  border-bottom: 2px solid var(--color-ink);
+}
+.brand { font-weight: 800; font-size: 30px; letter-spacing: -1px; line-height: 0.9; }
+.tagline {
+  flex: 1; font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--color-muted); margin-bottom: 4px;
+}
+
+.lede { font-size: 15px; line-height: 1.5; color: var(--color-muted); margin-bottom: 16px; }
+.lede b { color: var(--color-ink); font-weight: 600; font-family: var(--font-grotesk), sans-serif; }
+
+.capture { display: flex; gap: 8px; margin-bottom: 12px; }
+.flash { font-size: 13px; color: var(--color-muted); font-style: italic; margin-bottom: 14px; }
+
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0 24px; }
+.tab {
+  font-family: var(--font-grotesk), sans-serif;
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 12px; border-radius: 3px;
+  border: 1px solid var(--color-line); background: transparent;
+  color: var(--color-muted); font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: all 0.15s ease;
+}
+.tab:hover { color: var(--color-ink); }
+.tab.active { color: var(--color-accent-ink); background: var(--color-ink); border-color: var(--color-ink); }
+.tab.active .tab-n { color: var(--color-accent-ink); }
+.tab-n { font-size: 11px; font-weight: 700; color: var(--color-faint); }
+
+.empty { color: var(--color-muted); text-align: center; padding: 44px 0; font-style: italic; }
+
+.groups { display: flex; flex-direction: column; gap: 30px; }
+.group { display: flex; flex-direction: column; }
+.group .kicker { margin-bottom: 14px; text-transform: capitalize; }
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 13px;
+}
+
+.ops {
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+  margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--color-rule);
+  opacity: 0.7;
+}
+.ops .btn { font-size: 12px; padding: 6px 10px; }
+
+/* ═══ ProductCard (editoryal) ═══ */
+.product {
+  display: flex; flex-direction: column;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 5px; overflow: hidden;
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+.product:hover { border-color: var(--color-ink); transform: translateY(-2px); }
+
+.product-thumb {
+  display: block; aspect-ratio: 4 / 3;
+  background: var(--color-surface-2);
+  display: grid; place-items: center;
+}
+.product-thumb img { width: 100%; height: 100%; object-fit: contain; }
+.product-thumb-empty { color: var(--color-faint); font-size: 12px; font-style: italic; }
+
+.product-body { padding: 12px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+
+.product-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.product-score {
+  margin-left: auto; font-size: 24px; letter-spacing: -1px;
+}
+
+.product-title {
+  font-weight: 700; font-size: 14px; line-height: 1.25; letter-spacing: -0.1px;
+  color: var(--color-ink); text-decoration: none;
+}
+.product-title:hover { color: var(--color-signal); }
+.product-price { font-weight: 800; font-size: 17px; }
+
+/* sinyal blokları */
+.signal {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 8px 10px; border-radius: 4px; font-size: 11.5px; line-height: 1.4;
+  border: 1px solid var(--color-line);
+}
+.signal-ai { background: var(--color-signal-lt); }
+.signal-need { background: color-mix(in srgb, var(--color-warn) 12%, transparent); border-color: color-mix(in srgb, var(--color-warn) 30%, transparent); }
+.signal-label {
+  font-family: var(--font-grotesk), sans-serif;
+  font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--color-muted);
+}
+.signal-pending { font-size: 11px; color: var(--color-faint); font-style: italic; }
+
+.product-pricetrack { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 11px; }
+.product-notes { font-size: 12px; color: var(--color-muted); font-style: italic; }
+
+.product-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto; padding-top: 4px; }
+.product-actions .btn { padding: 5px 9px; font-size: 12px; }
+
+/* renk yardımcıları */
+.is-good { color: var(--color-good); }
+.is-bad { color: var(--color-bad); }
+.is-warn { color: var(--color-warn); }
+.muted { color: var(--color-muted); }
+.badge.is-good { color: var(--color-good); border-color: var(--color-good); }
+.badge.is-bad { color: var(--color-bad); border-color: var(--color-bad); }
+.badge.is-warn { color: var(--color-warn); border-color: var(--color-warn); }
+.btn.is-bad-btn { color: var(--color-bad); }
+.btn.is-bad-btn:hover { border-color: var(--color-bad); }
