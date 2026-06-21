@@ -21,6 +21,11 @@ Biçim [Keep a Changelog](https://keepachangelog.com/) temellidir ve proje
 ### Fixed
 - Hydration uyumsuzluğu: `Board.thisWeek` ve `ProductCard` TTL rozeti render-içi `Date.now()`
   yerine mount sonrası hesaplanıyor (SSR uyarısı giderildi).
+- **Çıkarım dayanıklılığı:** bot-koruma/engelleme sayfaları artık tespit ediliyor — "Access Denied"
+  gibi çöp başlıklar kaydedilmiyor, ürün `blocked` işaretleniyor. Daha gerçekçi tarayıcı
+  header'ları (Accept-Language, Sec-Fetch, sec-ch-ua) bazı basit blokları aşar. Çıkarımı
+  başarısız/bloklu kartlar sonsuz "işleniyor" iskeleti yerine **"site engelledi — Düzelt"**
+  fallback'i gösterir (gerçek "işleniyor" durumu `extractionTier` ile ayrışır).
 
 ### Added (önceki — UX/UI)
 - **UX/UI yenileme (Faz 4 — Karar anı / verdict):** AI karşılaştırma küçük tablodan

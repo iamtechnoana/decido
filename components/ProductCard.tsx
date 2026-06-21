@@ -44,7 +44,10 @@ export default function ProductCard({
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
 
-  const processing = p.title === null
+  // extractionTier yoksa çıkarım henüz çalışmadı (gerçek "işleniyor").
+  // Tier var ama title yoksa çıkarım çalıştı ama başarısız/bloklandı (fallback göster).
+  const processing = p.title === null && p.extractionTier == null
+  const failed = p.title === null && p.extractionTier != null
 
   // Swipe (dokunmatik): sağ = Tut, sol = Arşivle.
   const [dx, setDx] = useState(0)
@@ -94,6 +97,36 @@ export default function ProductCard({
           <div className="skel skel-line w35" style={{ height: 16 }} />
         </div>
       </article>
+    )
+  }
+
+  if (failed) {
+    const blocked = p.extractionTier === 'blocked'
+    return (
+      <div className="product-wrap">
+        <article
+          className="product product-failed product-tappable"
+          role="button" tabIndex={0}
+          onClick={() => onOpen()}
+          onKeyDown={(e) => { if (e.key === 'Enter') onOpen() }}
+        >
+          <div className="product-body">
+            <div className="product-meta">
+              <span className="badge">{p.domain}</span>
+              <span className="badge is-warn">{blocked ? 'site engelledi' : 'okunamadı'}</span>
+            </div>
+            <div className="product-title grotesk">Otomatik okunamadı</div>
+            <p className="signal-pending">
+              {blocked
+                ? 'Bu site bot korumalı — sunucudan okunamıyor. Düzenleyerek elle doldur ya da mağazada aç.'
+                : 'Veri çıkarılamadı. Düzenleyerek elle doldurabilirsin.'}
+            </p>
+            <div className="product-actions">
+              <button className="btn btn-primary" onClick={onOpen}>Düzelt →</button>
+            </div>
+          </div>
+        </article>
+      </div>
     )
   }
 
