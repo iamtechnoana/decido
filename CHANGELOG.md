@@ -8,6 +8,12 @@ Biçim [Keep a Changelog](https://keepachangelog.com/) temellidir ve proje
 ## [Unreleased]
 
 ### Added
+- **UX/UI yenileme (Faz 2 — Mobil kabuk):** mobil-önce navigasyon. Alt navigasyon çubuğu
+  (durum sekmeleri: İncele / Aday / Alındı) + ortada **FAB "+"** ile yakalama; "Diğer" sayfası
+  (Eriyik arşivi + Fiyat kontrol / Bakım / Yenile / Çıkış — ana çatıdan indirildi). Yakalama
+  artık alttan açılan **bottom-sheet**'te. **PWA Share Target**: başka uygulamadan "Paylaş →
+  DECIDO" ile link doğrudan yakalama sayfasını ön-doldurur (`manifest.share_target`). Üst künye
+  aktif filtreyi gösterir.
 - **UX/UI yenileme (Faz 1 — Tasarım sistemi):** arayüz "Karar Gazetesi" editoryal yönüne
   taşındı. Açık + koyu tema (CSS token sistemi + `prefers-color-scheme` + manuel `ThemeToggle`,
   localStorage kalıcı, FOUC'suz inline script). Tipografi: Bricolage Grotesque (başlık/skor) +

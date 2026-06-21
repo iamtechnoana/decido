@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { ProductDTO } from '@/lib/types'
 import { EXTEND_TTL_DAYS, DAY_MS } from '@/lib/constants'
@@ -17,12 +17,22 @@ const STATUS_LABEL: Record<StatusFilter, string> = {
   bought: 'Alındı',
   archived: 'Eriyik',
 }
-const ORDER: StatusFilter[] = ['inbox', 'candidate', 'bought', 'archived']
+/** Alt-navda görünen ana durumlar (Eriyik = "Diğer" sayfasında). */
+const NAV_STATUSES: StatusFilter[] = ['inbox', 'candidate', 'bought']
 
 /** Son 7 günde yakalanan sayısı (modül seviyesi — Date.now() render'da yasak). */
 function countThisWeek(products: ProductDTO[]): number {
   const weekAgo = Date.now() - 7 * DAY_MS
   return products.filter((p) => new Date(p.capturedAt).getTime() >= weekAgo).length
+}
+
+/** Paylaşılan metin/URL'den ilk linki çıkar (PWA Share Target). */
+function firstUrl(...vals: (string | null)[]): string {
+  for (const v of vals) {
+    const m = v?.match(/https?:\/\/\S+/i)
+    if (m) return m[0]
+  }
+  return ''
 }
 
 export default function Board({ initialProducts }: { initialProducts: ProductDTO[] }) {
@@ -34,6 +44,7 @@ export default function Board({ initialProducts }: { initialProducts: ProductDTO
   const [busy, setBusy] = useState('')
   const [flash, setFlash] = useState('')
   const [editing, setEditing] = useState<ProductDTO | null>(null)
+  const [sheet, setSheet] = useState<'capture' | 'more' | null>(null)
 
   const refresh = useCallback(async (): Promise<ProductDTO[] | null> => {
     const res = await fetch('/api/products')
@@ -72,6 +83,7 @@ export default function Board({ initialProducts }: { initialProducts: ProductDTO
       }
       setUrl('')
       setCapturing(false)
+      setSheet(null)
       setFilter('inbox')
       setFlash(`${added} eklendi${dup ? `, ${dup} zaten vardı` : ''} · arka planda işleniyor…`)
       await refresh()
@@ -79,6 +91,17 @@ export default function Board({ initialProducts }: { initialProducts: ProductDTO
     },
     [url, refresh, pollProcessing],
   )
+
+  // PWA Share Target: '/?url=…&text=…' ile açıldıysa yakalama sayfasını ön-doldur.
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search)
+    const shared = firstUrl(q.get('url'), q.get('text'), q.get('title'))
+    if (shared) {
+      setUrl(shared)
+      setSheet('capture')
+      window.history.replaceState(null, '', window.location.pathname)
+    }
+  }, [])
 
   const patch = useCallback(async (id: string, data: Partial<ProductDTO>) => {
     setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, ...data } : p)))
@@ -108,6 +131,7 @@ export default function Board({ initialProducts }: { initialProducts: ProductDTO
     async (path: string, label: string, msg: (s: Record<string, unknown>) => string) => {
       setBusy(label)
       setFlash('')
+      setSheet(null)
       const res = await fetch(path, { method: 'POST' })
       setBusy('')
       if (res.ok) {
@@ -146,52 +170,31 @@ export default function Board({ initialProducts }: { initialProducts: ProductDTO
 
   const thisWeek = countThisWeek(products)
 
+  function pick(s: StatusFilter) {
+    setFilter(s)
+    setSheet(null)
+  }
+
   return (
     <main className="board">
       {/* ── künye ── */}
       <header className="masthead">
         <span className="brand grotesk">DECIDO</span>
-        <span className="tagline grotesk">karar gazetesi</span>
+        <span className="tagline grotesk">{STATUS_LABEL[filter].toLowerCase()}</span>
         <ThemeToggle />
       </header>
 
-      {/* özet bandı */}
       <p className="lede">
         Bu hafta <b>{thisWeek}</b> kayıt · <b>{counts.inbox}</b> incelenmemiş bekliyor
         {counts.inbox > 0 && ' — birkaçını hızlıca ele.'}
       </p>
 
-      {/* yakalama */}
-      <form onSubmit={capture} className="capture">
-        <input
-          className="input"
-          placeholder="Ürün linki yapıştır — tek tık, gerisini sistem halleder"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-        />
-        <button className="btn btn-accent" disabled={capturing}>
-          {capturing ? 'Ekleniyor…' : 'Ekle'}
-        </button>
-      </form>
       {flash && <p className="flash">{flash}</p>}
-
-      {/* durum sekmeleri */}
-      <nav className="tabs">
-        {ORDER.map((s) => (
-          <button
-            key={s}
-            className={`tab grotesk${filter === s ? ' active' : ''}`}
-            onClick={() => setFilter(s)}
-          >
-            {STATUS_LABEL[s]} <span className="tab-n">{counts[s] ?? 0}</span>
-          </button>
-        ))}
-      </nav>
 
       {groups.length === 0 && (
         <p className="empty">
           {filter === 'inbox'
-            ? 'İncelenmemiş kutusu boş. Yukarıdan link ekle — düşünmeden.'
+            ? 'İncelenmemiş kutusu boş. Sağ alttaki + ile link ekle — düşünmeden.'
             : `Henüz ${STATUS_LABEL[filter].toLowerCase()} ürün yok.`}
         </p>
       )}
@@ -202,7 +205,6 @@ export default function Board({ initialProducts }: { initialProducts: ProductDTO
             <div className="kicker">
               {category} <span className="badge">{items.length}</span>
             </div>
-
             <div className="card-grid">
               {items.map((p) => (
                 <ProductCard
@@ -215,7 +217,6 @@ export default function Board({ initialProducts }: { initialProducts: ProductDTO
                 />
               ))}
             </div>
-
             {filter !== 'archived' && !category.startsWith('—') && (
               <ComparePanel groupKey={`category:${category}`} count={items.length} />
             )}
@@ -223,17 +224,64 @@ export default function Board({ initialProducts }: { initialProducts: ProductDTO
         ))}
       </div>
 
-      {/* dev-ops (ikincil — ileride ⋯ menüye) */}
-      <footer className="ops">
-        <button className="btn" onClick={() => runJob('/api/price-check', 'Fiyat kontrol', (s) => `Fiyat: ${s.priced}/${s.checked} · ${s.alerts} alarm`)} disabled={!!busy}>
-          {busy === 'Fiyat kontrol' ? 'Kontrol…' : 'Fiyat kontrol'}
-        </button>
-        <button className="btn" onClick={() => runJob('/api/maintenance', 'Bakım', (s) => `Bakım: ${(s.ttl as { archived: number })?.archived ?? 0} arşivlendi`)} disabled={!!busy} title="Süresi dolanları arşivle">
-          {busy === 'Bakım' ? 'Bakım…' : 'Bakım'}
-        </button>
-        <button className="btn" onClick={() => refresh()}>Yenile</button>
-        <button className="btn" onClick={logout}>Çıkış</button>
-      </footer>
+      {/* ── alt navigasyon + FAB ── */}
+      <nav className="botnav">
+        <div className="botnav-inner">
+          {NAV_STATUSES.slice(0, 2).map((s) => (
+            <button key={s} className={`botnav-item grotesk${filter === s ? ' active' : ''}`} onClick={() => pick(s)}>
+              <span className="botnav-n">{counts[s] ?? 0}</span>
+              {STATUS_LABEL[s]}
+            </button>
+          ))}
+          <button className="fab" onClick={() => setSheet('capture')} aria-label="Link yakala">+</button>
+          <button className={`botnav-item grotesk${filter === 'bought' ? ' active' : ''}`} onClick={() => pick('bought')}>
+            <span className="botnav-n">{counts.bought ?? 0}</span>
+            {STATUS_LABEL.bought}
+          </button>
+          <button className={`botnav-item grotesk${sheet === 'more' || filter === 'archived' ? ' active' : ''}`} onClick={() => setSheet('more')}>
+            <span className="botnav-ic">⋯</span>
+            Diğer
+          </button>
+        </div>
+      </nav>
+
+      {/* ── yakalama sayfası (sheet) ── */}
+      {sheet === 'capture' && (
+        <Sheet title="Link yakala" onClose={() => setSheet(null)}>
+          <form onSubmit={capture} className="sheet-capture">
+            <input
+              className="input"
+              placeholder="Ürün linki yapıştır — tek tık, gerisini sistem halleder"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              autoFocus
+            />
+            <button className="btn btn-accent" disabled={capturing}>
+              {capturing ? 'Ekleniyor…' : 'Ekle'}
+            </button>
+          </form>
+          <p className="sheet-hint">Birden çok linki boşlukla ayırarak aynı anda ekleyebilirsin.</p>
+        </Sheet>
+      )}
+
+      {/* ── diğer (sheet) ── */}
+      {sheet === 'more' && (
+        <Sheet title="Diğer" onClose={() => setSheet(null)}>
+          <button className={`sheet-row grotesk${filter === 'archived' ? ' active' : ''}`} onClick={() => pick('archived')}>
+            Eriyik (arşiv) <span className="badge">{counts.archived ?? 0}</span>
+          </button>
+          <hr className="rule" />
+          <button className="sheet-row grotesk" onClick={() => runJob('/api/price-check', 'Fiyat kontrol', (s) => `Fiyat: ${s.priced}/${s.checked} · ${s.alerts} alarm`)} disabled={!!busy}>
+            {busy === 'Fiyat kontrol' ? 'Kontrol ediliyor…' : 'Fiyatları kontrol et'}
+          </button>
+          <button className="sheet-row grotesk" onClick={() => runJob('/api/maintenance', 'Bakım', (s) => `Bakım: ${(s.ttl as { archived: number })?.archived ?? 0} arşivlendi`)} disabled={!!busy}>
+            {busy === 'Bakım' ? 'Bakım…' : 'Bakım (süresi dolanları arşivle)'}
+          </button>
+          <button className="sheet-row grotesk" onClick={() => { setSheet(null); void refresh() }}>Yenile</button>
+          <hr className="rule" />
+          <button className="sheet-row grotesk is-bad" onClick={logout}>Çıkış</button>
+        </Sheet>
+      )}
 
       {editing && (
         <EditModal
@@ -246,5 +294,20 @@ export default function Board({ initialProducts }: { initialProducts: ProductDTO
         />
       )}
     </main>
+  )
+}
+
+/** Mobil bottom-sheet (alttan açılan panel). */
+function Sheet({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+  return (
+    <div className="sheet-overlay" onClick={onClose}>
+      <div className="sheet" onClick={(e) => e.stopPropagation()}>
+        <div className="sheet-head">
+          <span className="sheet-title grotesk">{title}</span>
+          <button className="btn" onClick={onClose} aria-label="Kapat">✕</button>
+        </div>
+        {children}
+      </div>
+    </div>
   )
 }
