@@ -8,6 +8,16 @@ Biçim [Keep a Changelog](https://keepachangelog.com/) temellidir ve proje
 ## [Unreleased]
 
 ### Added
+- **UX/UI yenileme (Faz 5 — Cila):** işlenmekte olan ürünler için **skeleton** (shimmer'lı
+  iskelet kart, "işleniyor…" metni yerine); kartlarda **dokunmatik swipe** (sağ = Tut, sol =
+  Arşivle; butonlar da çalışır); kademeli kart girişi animasyonu; flash bildirimleri **toast**
+  olarak (otomatik kaybolur); `prefers-reduced-motion` desteği.
+
+### Fixed
+- Hydration uyumsuzluğu: `Board.thisWeek` ve `ProductCard` TTL rozeti render-içi `Date.now()`
+  yerine mount sonrası hesaplanıyor (SSR uyarısı giderildi).
+
+### Added (önceki — UX/UI)
 - **UX/UI yenileme (Faz 4 — Karar anı / verdict):** AI karşılaştırma küçük tablodan
   "kazanan-kahraman" görünüme çevrildi: "★ En iyi seçim" damgası, büyük kazanan adı + skor
   mührü, gerekçe pull-quote'u (serif italik), artı/eksi, **"Bunu seç"** (kazananı aday yapar).

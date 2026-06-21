@@ -168,7 +168,16 @@ export default function Board({ initialProducts }: { initialProducts: ProductDTO
     return c
   }, [products])
 
-  const thisWeek = countThisWeek(products)
+  // Date.now() → yalnızca mount sonrası (SSR hydration uyumsuzluğunu önler).
+  const [thisWeek, setThisWeek] = useState(0)
+  useEffect(() => setThisWeek(countThisWeek(products)), [products])
+
+  // Flash bildirimi otomatik kaybolsun.
+  useEffect(() => {
+    if (!flash) return
+    const t = setTimeout(() => setFlash(''), 4000)
+    return () => clearTimeout(t)
+  }, [flash])
 
   function pick(s: StatusFilter) {
     setFilter(s)
@@ -189,7 +198,7 @@ export default function Board({ initialProducts }: { initialProducts: ProductDTO
         {counts.inbox > 0 && ' — birkaçını hızlıca ele.'}
       </p>
 
-      {flash && <p className="flash">{flash}</p>}
+      {flash && <div className="toast grotesk" role="status" onClick={() => setFlash('')}>{flash}</div>}
 
       {groups.length === 0 && (
         <p className="empty">
