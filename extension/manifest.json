@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "DECIDO Yakala",
+  "version": "0.1.0",
+  "description": "Açık sekmedeki ürünü tek tıkla DECIDO listene ekle.",
+  "permissions": ["activeTab", "storage", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "DECIDO'ya ekle"
+  }
+}
