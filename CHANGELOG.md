@@ -8,6 +8,11 @@ Biçim [Keep a Changelog](https://keepachangelog.com/) temellidir ve proje
 ## [Unreleased]
 
 ### Added
+- **UX/UI yenileme (Faz 3 — Kart sadeleştirme + detay):** progressive disclosure. Kart artık
+  yalnızca özü gösterir (görsel, başlık, fiyat, skor, **tek** öncelikli sinyal, birincil aksiyon
+  + "Detay →"). TL;DR, ihtiyaç-eşleme, fiyat geçmişi/sparkline, spec/etiket, notlar ve ikincil
+  aksiyonlar yeni **tam-ekran detay görünümüne** indi (`ProductDetail`); kart gövdesine
+  dokununca veya "Detay" ile açılır, "Mağazada aç" linki orada. Tarama belirgin hızlandı.
 - **UX/UI yenileme (Faz 5 — Cila):** işlenmekte olan ürünler için **skeleton** (shimmer'lı
   iskelet kart, "işleniyor…" metni yerine); kartlarda **dokunmatik swipe** (sağ = Tut, sol =
   Arşivle; butonlar da çalışır); kademeli kart girişi animasyonu; flash bildirimleri **toast**

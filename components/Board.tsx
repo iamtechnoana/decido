@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import type { ProductDTO } from '@/lib/types'
 import { EXTEND_TTL_DAYS, DAY_MS } from '@/lib/constants'
 import ProductCard from './ProductCard'
+import ProductDetail from './ProductDetail'
 import ComparePanel from './ComparePanel'
 import EditModal from './EditModal'
 import ThemeToggle from './ThemeToggle'
@@ -44,6 +45,7 @@ export default function Board({ initialProducts }: { initialProducts: ProductDTO
   const [busy, setBusy] = useState('')
   const [flash, setFlash] = useState('')
   const [editing, setEditing] = useState<ProductDTO | null>(null)
+  const [detail, setDetail] = useState<ProductDTO | null>(null)
   const [sheet, setSheet] = useState<'capture' | 'more' | null>(null)
 
   const refresh = useCallback(async (): Promise<ProductDTO[] | null> => {
@@ -219,10 +221,8 @@ export default function Board({ initialProducts }: { initialProducts: ProductDTO
                 <ProductCard
                   key={p.id}
                   product={p}
-                  onEdit={() => setEditing(p)}
+                  onOpen={() => setDetail(p)}
                   onStatus={(status) => patch(p.id, { status })}
-                  onExtend={() => extend(p)}
-                  onDelete={() => remove(p.id)}
                 />
               ))}
             </div>
@@ -297,6 +297,17 @@ export default function Board({ initialProducts }: { initialProducts: ProductDTO
           <hr className="rule" />
           <button className="sheet-row grotesk is-bad" onClick={logout}>Çıkış</button>
         </Sheet>
+      )}
+
+      {detail && (
+        <ProductDetail
+          product={detail}
+          onClose={() => setDetail(null)}
+          onStatus={(status) => patch(detail.id, { status })}
+          onEdit={() => setEditing(detail)}
+          onExtend={() => extend(detail)}
+          onDelete={() => remove(detail.id)}
+        />
       )}
 
       {editing && (
