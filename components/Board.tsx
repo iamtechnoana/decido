@@ -218,7 +218,14 @@ export default function Board({ initialProducts }: { initialProducts: ProductDTO
               ))}
             </div>
             {filter !== 'archived' && !category.startsWith('—') && (
-              <ComparePanel groupKey={`category:${category}`} count={items.length} />
+              <ComparePanel
+                groupKey={`category:${category}`}
+                count={items.length}
+                onPick={(id, title) => {
+                  void patch(id, { status: 'candidate' })
+                  setFlash(`"${title}" aday olarak seçildi.`)
+                }}
+              />
             )}
           </section>
         ))}

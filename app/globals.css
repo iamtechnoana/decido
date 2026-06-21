@@ -244,6 +244,56 @@ body {
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideup { from { transform: translateY(100%); } to { transform: none; } }
 
+/* ═══ Karar anı (verdict) ═══ */
+.compare { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--color-rule); }
+.compare-error { color: var(--color-bad); font-size: 13px; margin-top: 8px; }
+
+.verdict-summary { font-size: 14px; line-height: 1.5; color: var(--color-ink); margin: 4px 0 16px; }
+
+.verdict-best { border-top: 3px solid var(--color-ink); padding-top: 14px; }
+.verdict-main { display: flex; align-items: flex-start; gap: 14px; margin: 12px 0 12px; }
+.verdict-name { flex: 1; font-size: 24px; font-weight: 800; line-height: 1.0; letter-spacing: -0.8px; }
+.verdict-seal { flex: 0 0 auto; width: 58px; height: 58px; }
+.verdict-seal .n { font-size: 24px; }
+.verdict-quote { margin: 0 0 8px; font-size: 15px; }
+.verdict-reasons { display: flex; flex-direction: column; gap: 4px; }
+.verdict-reasons div { font-size: 13px; line-height: 1.4; }
+.verdict-pick {
+  width: 100%; margin-top: 14px; padding: 13px;
+  border: none; border-radius: 4px;
+  background: var(--color-ink); color: var(--color-bg);
+  font-size: 15px; font-weight: 700; letter-spacing: 0.2px; cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.verdict-pick:hover { background: var(--color-signal); color: var(--color-accent-ink); }
+
+.verdict-also {
+  font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--color-faint); margin: 20px 0 2px;
+}
+.verdict-rank { display: flex; align-items: baseline; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--color-rule); }
+.verdict-rankNo { font-weight: 800; font-size: 14px; color: var(--color-signal); width: 24px; }
+.verdict-rankName { flex: 1; font-size: 14px; }
+.verdict-rankScore { font-weight: 800; font-size: 17px; }
+
+.verdict-diff {
+  width: 100%; text-align: left; margin-top: 14px;
+  background: none; border: none; cursor: pointer;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.3px; color: var(--color-muted);
+}
+.verdict-diff:hover { color: var(--color-ink); }
+
+.verdict-table-wrap { overflow-x: auto; margin-top: 10px; }
+.verdict-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.verdict-table th {
+  font-family: var(--font-grotesk), sans-serif; text-align: left;
+  color: var(--color-muted); padding: 6px 8px; white-space: nowrap;
+  border-bottom: 1px solid var(--color-line); font-size: 10px;
+  letter-spacing: 0.5px; text-transform: uppercase;
+}
+.verdict-table td { padding: 6px 8px; border-bottom: 1px solid var(--color-rule); vertical-align: top; }
+.verdict-table tr.is-winner { background: var(--color-signal-lt); }
+
 /* ═══ ProductCard (editoryal) ═══ */
 .product {
   display: flex; flex-direction: column;

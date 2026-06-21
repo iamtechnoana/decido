@@ -8,6 +8,11 @@ Biçim [Keep a Changelog](https://keepachangelog.com/) temellidir ve proje
 ## [Unreleased]
 
 ### Added
+- **UX/UI yenileme (Faz 4 — Karar anı / verdict):** AI karşılaştırma küçük tablodan
+  "kazanan-kahraman" görünüme çevrildi: "★ En iyi seçim" damgası, büyük kazanan adı + skor
+  mührü, gerekçe pull-quote'u (serif italik), artı/eksi, **"Bunu seç"** (kazananı aday yapar).
+  Diğer ürünler sıralı liste. Ayrıntılı spec karşılaştırma tablosu "Fark nerede?" ile
+  açılır (progressive disclosure). `VerdictView` ayrı export.
 - **UX/UI yenileme (Faz 2 — Mobil kabuk):** mobil-önce navigasyon. Alt navigasyon çubuğu
   (durum sekmeleri: İncele / Aday / Alındı) + ortada **FAB "+"** ile yakalama; "Diğer" sayfası
   (Eriyik arşivi + Fiyat kontrol / Bakım / Yenile / Çıkış — ana çatıdan indirildi). Yakalama
