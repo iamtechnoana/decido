@@ -60,6 +60,13 @@ Biçim [Keep a Changelog](https://keepachangelog.com/) temellidir ve proje
 
 ### Changed
 - Durum sekme etiketi: "İncelenmemiş" → "İncele".
+- Deployment runbook (`docs/deployment/vercel.md`) güncellendi: çok-sağlayıcılı LLM env'leri
+  (OpenRouter + modeller + `CRON_SECRET`), repo stratejisi (ayrı private repo), şema
+  sqlite→postgresql adımı. Yeni: `docs/deployment/PRE-DEPLOY-CHECKLIST.md` (go/no-go).
+
+### Removed
+- Tasarım keşfi mockup route'ları (`/mockup`, `/mockup-b`) — üretime gitmemeli; UX yönü
+  gerçek arayüze uygulandı, mockup'lar git geçmişinde kalır.
 
 ### Added (önceki)
 - **Faz 4 — TL;DR Özet Kartları:** her ürün için "3 saniyelik özet" (🟢 artılar · 🔴 eksiler ·
