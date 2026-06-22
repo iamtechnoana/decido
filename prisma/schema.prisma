@@ -1,0 +1,102 @@
+// DECIDO — veri modeli
+// Sağlayıcı: PostgreSQL (Neon/Supabase/yerel). Yerel hızlı test için README'deki
+// SQLite alternatifine bak. Taşınabilirlik için tags/specs Json olarak tutulur
+// (SQLite'ta da çalışır), enum yerine doğrulanan String alanlar kullanılır.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // Yerel geliştirme/test: sqlite (DATABASE_URL="file:./dev.db").
+  // Üretim (Vercel): "postgresql"e çevir (bkz. ADR 0002 + docs/deployment/vercel.md).
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  url         String   @unique // dedup anahtarı
+  domain      String
+  source      String   @default("web") // web | extension | telegram
+
+  // Çıkarılan alanlar
+  title       String?
+  imageUrl    String?
+  description String?
+  price       Float?
+  currency    String?
+
+  // AI zenginleştirme
+  category    String?  // AI atadığı kategori → otomatik gruplama anahtarı
+  tags        Json?    // string[]
+  specs       Json?    // { anahtar: değer } — kategoriye göre serbest
+  score       Int?     // 0-100 (grup içi karşılaştırmada üretilir)
+  scoreReason String?
+
+  // Durum (yaşam döngüsü) — inbox | candidate | bought | archived
+  status      String   @default("inbox")
+  notes       String?
+
+  // Yaşam döngüsü (Faz 3)
+  expiresAt     DateTime? // TTL — süre sonunda inbox'tan otomatik arşivlenir
+  reviewedAt    DateTime? // inbox'tan ilk triaj edildiğinde
+  remindAt      DateTime? // "sonra hatırlat" (snooze)
+  archivedAt    DateTime?
+  archiveReason String?   // manual | ttl
+  needSignal    Json?     // İhtiyaç Eşleme: { sameCategoryCount, recentBuys, recentSpend, similar }
+
+  // TL;DR özet (Faz 4) — { pros, cons, edge, idealUser }
+  tldr        Json?
+  tldrAt      DateTime?
+
+  // Gruplama (kullanıcı override)
+  bucket      Bucket?  @relation(fields: [bucketId], references: [id], onDelete: SetNull)
+  bucketId    String?
+
+  // Çıkarım meta
+  extractionTier String? // og | render | llm | manual
+  rawMeta        Json?
+
+  // Faz 2 — fiyat takibi
+  targetPrice    Float?
+  alertEnabled   Boolean  @default(false)
+  lastAlertedAt  DateTime?
+  priceChecks    PriceCheck[]
+
+  capturedAt  DateTime @default(now())
+  enrichedAt  DateTime?
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([status])
+}
+
+model Bucket {
+  id        String    @id @default(cuid())
+  name      String
+  note      String?
+  products  Product[]
+  createdAt DateTime  @default(now())
+}
+
+// Faz 2 — periyodik fiyat ölçümleri
+model PriceCheck {
+  id        String   @id @default(cuid())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  price     Float
+  currency  String?
+  checkedAt DateTime @default(now())
+
+  @@index([productId])
+}
+
+// Grup-içi karşılaştırma sonucunun cache'i (kova içeriği değişmedikçe yeniden hesaplanmaz)
+model ComparisonCache {
+  id        String   @id @default(cuid())
+  groupKey  String   @unique // "category:telefon" veya "bucket:<id>"
+  signature String   // gruptaki ürün id+price hash'i — değişimde geçersiz olur
+  result    Json     // karşılaştırma tablosu + skorlar + öneri
+  createdAt DateTime @default(now())
+}
