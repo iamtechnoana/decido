@@ -8,6 +8,10 @@ Biçim [Keep a Changelog](https://keepachangelog.com/) temellidir ve proje
 ## [Unreleased]
 
 ### Added
+- **Otomatik test paketi (Vitest):** çıkarım ve yakalama mantığı için ilk birim test paketi
+  (20 test). `extractor` — OG/JSON-LD çıkarımı, bot-blok tespiti, boş-SPA, fiyat formatları
+  (TR/US), LLM fallback, fetch hatası (fetch + LLM mock'lu); `capture` — `normalizeUrl`
+  (takip parametresi/fragment temizliği) + `firstUrl`. `npm test` / `npm run test:watch`.
 - **Eklenti canlı-DOM yakalama (bot-bloklu siteler için):** tarayıcı eklentisi artık aktif
   sekmenin **render olmuş DOM'undan** OG/JSON-LD okuyup (`chrome.scripting.executeScript`)
   başlık/görsel/fiyat/açıklamayı `/api/capture`'a gönderir. Sunucu, `extracted` verisi gelince
