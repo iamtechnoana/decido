@@ -10,7 +10,7 @@ generator client {
 datasource db {
   // Yerel geliştirme/test: sqlite (DATABASE_URL="file:./dev.db").
   // Üretim (Vercel): "postgresql"e çevir (bkz. ADR 0002 + docs/deployment/vercel.md).
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
